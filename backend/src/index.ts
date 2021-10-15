@@ -15,7 +15,10 @@ import cors from 'cors';
     app.use(cors(corsOptions));
 
     const server = http.createServer(app);
-    const socketio = new socket.Server(server, { cors: corsOptions });
+    const socketio = new socket.Server(server, {
+        cors: corsOptions,
+        path: '/infinitiStorage/socket',
+    });
 
     const masterRouter = express.Router();
     app.use('/infinitiStorage', masterRouter);
