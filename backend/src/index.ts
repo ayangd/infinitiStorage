@@ -17,7 +17,10 @@ import cors from 'cors';
     const server = http.createServer(app);
     const socketio = new socket.Server(server, { cors: corsOptions });
 
-    app.get(
+    const masterRouter = express.Router();
+    app.use('/infinitiStorage', masterRouter);
+
+    masterRouter.get(
         /^\/(?!api).*/,
         express.static(path.join(__dirname, '../../frontend/build'))
     );
