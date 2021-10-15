@@ -30,7 +30,7 @@ import cors from 'cors';
         console.log(`a user connec, id=${socket.id}`);
     });
 
-    const port = 8080;
+    const port = 8079;
     server.listen(port, () => {
         console.log(`Server listening on port ${port}`);
     });
