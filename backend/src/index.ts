@@ -33,6 +33,13 @@ import cors from 'cors';
             console.log(`user disconnec, id=${socket.id}`);
         });
 
+        socket.on(
+            'cred/login',
+            ({ email, password }: { email: string; password: string }) => {
+                console.log(`Login {email: ${email}, password: ${password}}`);
+            }
+        );
+
         console.log(`a user connec, id=${socket.id}`);
     });
 
