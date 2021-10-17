@@ -7,7 +7,9 @@ function Login() {
     const [password, setPassword] = useState('');
 
     function login() {
-        auth.login(email, password);
+        auth.login(email, password).then((loggedIn) =>
+            console.log(`Status: ${loggedIn}`)
+        );
     }
 
     return (

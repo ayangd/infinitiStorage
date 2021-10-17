@@ -4,6 +4,7 @@ const nodeExternals = require('webpack-node-externals');
 module.exports = {
     entry: './src/index.ts',
     target: 'node',
+    devtool: process.env.NODE_ENV === 'development' ? 'source-map' : undefined,
     output: { path: path.join(__dirname, 'out'), filename: 'index.bundle.js' },
     mode: process.env.NODE_ENV || 'development',
     resolve: {

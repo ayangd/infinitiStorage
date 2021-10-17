@@ -3,9 +3,15 @@ import http from 'http';
 import * as socket from 'socket.io';
 import path from 'path';
 import cors from 'cors';
+import listen from './socket';
+import { sequelize } from './database';
 
 // Blocking, sync db first then open the server listener
 (async () => {
+    await sequelize.sync({
+        force: true,
+    });
+
     const app = express();
 
     var corsOptions = {
@@ -25,7 +31,14 @@ import cors from 'cors';
 
     masterRouter.get(
         /^\/(?!api).*/,
-        express.static(path.join(__dirname, '../../frontend/build'))
+        express.static(path.join(__dirname, '../../frontend/build'), {
+            fallthrough: true,
+        }),
+        (req: Request, res: Response) => {
+            res.sendFile('index.html', {
+                root: path.join(__dirname, '../../frontend/build'),
+            });
+        }
     );
 
     socketio.on('connection', (socket) => {
@@ -33,12 +46,14 @@ import cors from 'cors';
             console.log(`user disconnec, id=${socket.id}`);
         });
 
-        socket.on(
-            'cred/login',
-            ({ email, password }: { email: string; password: string }) => {
-                console.log(`Login {email: ${email}, password: ${password}}`);
-            }
-        );
+        listen(socket);
+
+        // socket.on(
+        //     'cred/login',
+        //     ({ email, password }: { email: string; password: string }) => {
+        //         console.log(`Login {email: ${email}, password: ${password}}`);
+        //     }
+        // );
 
         console.log(`a user connec, id=${socket.id}`);
     });

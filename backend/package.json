@@ -4,18 +4,22 @@
     "main": "index.js",
     "license": "MIT",
     "scripts": {
-        "start": "node ./out/index.bundle.js",
+        "start": "node -r dotenv/config ./out/index.bundle.js",
         "dev": "rimraf out && cross-env NODE_ENV=development webpack --watch --progress --color",
         "prod": "rimraf out && cross-env NODE_ENV=production webpack --progress --color"
     },
     "dependencies": {
+        "@types/bcryptjs": "^2.4.2",
+        "bcryptjs": "^2.4.3",
         "cors": "^2.8.5",
         "cross-env": "^7.0.3",
+        "dotenv": "^10.0.0",
         "express": "^4.17.1",
-        "node-forge": "^0.10.0",
+        "mysql2": "^2.3.2",
         "path": "^0.12.7",
         "request": "^2.88.2",
         "rimraf": "^3.0.2",
+        "sequelize": "^6.7.0",
         "socket.io": "^4.2.0",
         "ts-node": "^10.2.1",
         "webpack-node-externals": "^3.0.0"
