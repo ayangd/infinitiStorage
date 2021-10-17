@@ -1,13 +1,21 @@
-import React from 'react';
-import { socket } from './lib/socket';
 import Login from './layout/login';
-
-console.log(socket);
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import Navbar from './layout/navbar';
 
 function App() {
     return (
         <>
-            <Login />
+            <BrowserRouter basename="/infinitiStorage">
+                <Navbar />
+                <Switch>
+                    <Route path="/login" exact>
+                        <Login />
+                    </Route>
+                    <Route path="/" exact>
+                        Hello
+                    </Route>
+                </Switch>
+            </BrowserRouter>
         </>
     );
 }

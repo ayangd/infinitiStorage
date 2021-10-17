@@ -1,4 +1,5 @@
-button {
+.btn {
+    text-decoration: none;
     text-transform: uppercase;
     padding: 0.5rem 0.75rem;
     color: white;
@@ -6,6 +7,7 @@ button {
     border: none;
     border-radius: 6px;
     transition: 0.1s;
+    cursor: pointer;
     &:hover {
         background-color: #777;
     }

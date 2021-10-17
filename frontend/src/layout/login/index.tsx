@@ -32,7 +32,9 @@ function Login() {
                         onChange={(e) => setPassword(e.target.value)}
                     />
                 </div>
-                <button onClick={login}>Login</button>
+                <button className="btn" onClick={login}>
+                    Login
+                </button>
             </div>
         </div>
     );
