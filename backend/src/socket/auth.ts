@@ -5,6 +5,7 @@ import {
     UserCreationAttributes,
 } from '../database/models/user';
 import { User } from '../database';
+import { assertion } from './assertion';
 
 interface LoginParameters {
     email: string;
@@ -18,20 +19,36 @@ export default function listenAuth(socket: Socket) {
         delete sessions[socket.id];
     });
 
-    socket.on('cred/login', ({ email, password }: LoginParameters) => {
-        console.log(email, password);
+    socket.on('cred/login', (loginParameters: LoginParameters) => {
+        const loginParametersAssertion = assertion(loginParameters);
+        console.log(JSON.stringify(loginParameters));
+        const assertionPassing =
+            loginParametersAssertion.shouldBeTyped('object') &&
+            assertion(loginParameters).shouldHaveProperties(
+                'email',
+                'password'
+            );
+        if (!assertionPassing) {
+            socket.emit('cred/login/response', {
+                success: false,
+                message: 'Bad Request',
+            });
+            return;
+        }
+        const { email, password } = loginParameters;
         (async () => {
-            const result = await User.findOne({
+            const resultModel = await User.findOne({
                 where: { email: email },
             });
 
-            if (result === null) {
+            if (resultModel === null) {
                 socket.emit('cred/login/response', {
                     success: false,
                     message: 'Email not registered',
                 });
                 return;
             }
+            const result = resultModel.get();
 
             const match = await bcrypt.compare(password, result.password);
             if (!match) {
@@ -50,7 +67,7 @@ export default function listenAuth(socket: Socket) {
     socket.on('cred/logout', () => {
         delete sessions[socket.id];
         socket.emit('cred/logout/response', {
-            success: false,
+            success: true,
         });
     });
 
@@ -64,9 +81,15 @@ export default function listenAuth(socket: Socket) {
                     ...newUser_,
                 });
             } catch (e) {
+                let message: any = undefined;
+                if (e instanceof Error) {
+                    message = e.message;
+                } else if (typeof e === 'string') {
+                    message = e;
+                }
                 socket.emit('cred/register/response', {
                     success: false,
-                    error: e,
+                    message: message ?? 'Internal server error',
                 });
                 return;
             }
@@ -83,22 +106,22 @@ export default function listenAuth(socket: Socket) {
             });
             return;
         }
-        User.findByPk(sessions[socket.id]).then((user) => {
-            if (user === null) {
+        User.findByPk(sessions[socket.id]).then((userModel) => {
+            if (userModel === null) {
                 socket.emit('cred/currentUser/response', {
                     success: false,
                     message: 'User not found',
                 });
                 return;
             }
-            socket.emit('cred/register/response', {
+            const user = userModel.get();
+            socket.emit('cred/currentUser/response', {
                 success: true,
                 data: {
                     user: {
                         email: user.email,
                         firstName: user.firstName,
                         lastName: user.lastName,
-                        role: user.role,
                     },
                 },
             });

@@ -6,7 +6,6 @@ export interface UserAttributes {
     email: string;
     firstName: string;
     lastName?: string;
-    role: string;
 }
 
 export interface UserCreationAttributes
@@ -21,7 +20,6 @@ export class User
     email!: string;
     firstName!: string;
     lastName!: string;
-    role!: string;
 
     readonly createdAt!: Date;
     readonly updatedAt!: Date;
@@ -51,10 +49,6 @@ function initUser(sequelize: Sequelize) {
             lastName: {
                 type: STRING,
                 allowNull: true,
-            },
-            role: {
-                type: STRING,
-                allowNull: false,
             },
         },
         { tableName: 'users', sequelize }

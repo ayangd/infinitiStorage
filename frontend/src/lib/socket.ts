@@ -14,6 +14,7 @@ export function callRemote<R>(url: string, data?: any) {
     return new Promise((resolve: (res: R | void) => void, reject) => {
         socket.once(url + '/response', (response: Response<R>) => {
             if (response.success === true) {
+                console.log(response);
                 if (response.data === undefined) {
                     resolve();
                 } else {

@@ -9,7 +9,7 @@ import { sequelize } from './database';
 // Blocking, sync db first then open the server listener
 (async () => {
     await sequelize.sync({
-        force: true,
+        // force: true,
     });
 
     const app = express();
