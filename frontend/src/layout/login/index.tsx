@@ -1,50 +1,43 @@
 import { useState } from 'react';
-import './style.scss';
 import * as auth from '../../lib/auth';
-import { Link } from 'react-router-dom';
 import { useHistory } from 'react-router';
+import { Formik } from 'formik';
+import { CenteredContainer, Container, Title } from './container-components';
+import { LoginFormik } from './login-formik';
+import { LoginAlert } from './login-alert';
 
 function Login() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const history = useHistory();
+    const [error, setError] = useState('');
 
-    function login() {
-        auth.login(email, password).then((loggedIn) => history.push('/'));
+    function login(email: string, password: string, setSubmitting: Function) {
+        auth.login(email, password)
+            .then(() => history.push('/'))
+            .catch((error_) => {
+                setError(error_);
+                setSubmitting(false);
+            });
     }
 
     return (
-        <div className="login-layout-container">
-            <div className="login-container">
-                <div className="login-title">Login</div>
-                <div className="login-form-group">
-                    <span>Email:</span>
-                    <input
-                        className="input"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                </div>
-                <div className="login-form-group">
-                    <span>Password:</span>
-                    <input
-                        className="input"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </div>
-                <div className="login-centered">
-                    Don't have an account yet?
-                    <br />
-                    <Link to="/register">Register here</Link>.
-                </div>
-                <button className="btn" onClick={login}>
-                    Login
-                </button>
-            </div>
-        </div>
+        <Container>
+            <CenteredContainer>
+                <Title>Login</Title>
+                <LoginAlert error={error} reset={() => setError('')} />
+                <Formik
+                    initialValues={{ email: '', password: '' }}
+                    onSubmit={(values, actions) => {
+                        login(
+                            values.email,
+                            values.password,
+                            actions.setSubmitting
+                        );
+                    }}
+                >
+                    {LoginFormik}
+                </Formik>
+            </CenteredContainer>
+        </Container>
     );
 }
 
