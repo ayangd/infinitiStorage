@@ -18,7 +18,9 @@ function Navbar() {
 
     return (
         <NavbarLayoutContainer>
-            <div>infinitiStorage</div>
+            <div>
+                <Link to="/">infinitiStorage</Link>
+            </div>
             <div>
                 {user ? (
                     <>

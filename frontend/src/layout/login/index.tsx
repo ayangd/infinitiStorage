@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import * as auth from '../../lib/auth';
 import { useHistory } from 'react-router';
 import { Formik } from 'formik';
@@ -36,6 +37,7 @@ function Login() {
                 >
                     {LoginFormik}
                 </Formik>
+                <Link to="/register">Forgor? Register here.</Link>
             </CenteredContainer>
         </Container>
     );
