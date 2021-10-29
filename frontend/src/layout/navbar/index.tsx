@@ -3,7 +3,6 @@ import { matchPath, useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
 import { logout, useUser } from '../../lib/auth';
 import { NavbarLayoutContainer } from './container-components';
-import './style.scss';
 
 function Navbar() {
     const location = useLocation();
