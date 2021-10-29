@@ -22,7 +22,7 @@ export function useUser() {
         let mounted = true;
 
         async function getCurrentUser() {
-            let user__: UserAttributes;
+            let user__: UserAttributes | null;
             try {
                 user__ = await currentUser();
             } catch (e) {
@@ -55,6 +55,7 @@ export async function login(email: string, password: string) {
 
 export async function logout() {
     await callRemote<void>('cred/logout');
+    user = null;
     UserEventEmitter.emit('change');
 }
 
@@ -65,10 +66,14 @@ export async function register(user: UserCreationAttributes) {
 
 export async function currentUser() {
     if (user === null) {
-        const user_ = (await callRemote<{ user: UserAttributes }>(
-            'cred/currentUser'
-        )) as { user: UserAttributes };
-        user = user_.user;
+        try {
+            const user_ = (await callRemote<{ user: UserAttributes }>(
+                'cred/currentUser'
+            )) as { user: UserAttributes };
+            user = user_.user;
+        } catch (e) {
+            user = null;
+        }
         return user;
     } else {
         return user;

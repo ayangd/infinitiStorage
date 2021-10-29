@@ -1,6 +1,8 @@
+import { Button } from '@chakra-ui/button';
 import { matchPath, useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
 import { logout, useUser } from '../../lib/auth';
+import { NavbarLayoutContainer } from './container-components';
 import './style.scss';
 
 function Navbar() {
@@ -16,23 +18,29 @@ function Navbar() {
     }
 
     return (
-        <div className="navbar-layout-container">
-            <div className="navbar-left">infinitiStorage</div>
-            <div className="navbar-right">
+        <NavbarLayoutContainer>
+            <div>infinitiStorage</div>
+            <div>
                 {user ? (
                     <>
                         {`Welcome ${user.lastName}`}&nbsp;&nbsp;
-                        <button className="btn" onClick={() => logout()}>
+                        <Button
+                            colorScheme="red"
+                            className="btn"
+                            onClick={() => logout()}
+                        >
                             Logout
-                        </button>
+                        </Button>
                     </>
                 ) : (
                     <Link to="/login">
-                        <button className="btn">Login</button>
+                        <Button colorScheme="teal" className="btn">
+                            Login
+                        </Button>
                     </Link>
                 )}
             </div>
-        </div>
+        </NavbarLayoutContainer>
     );
 }
 
