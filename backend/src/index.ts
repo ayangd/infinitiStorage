@@ -4,6 +4,7 @@ import * as socket from 'socket.io';
 import path from 'path';
 import cors from 'cors';
 import listen from './socket';
+import compression from 'compression';
 import { sequelize } from './database';
 
 // Blocking, sync db first then open the server listener
@@ -29,7 +30,9 @@ import { sequelize } from './database';
     const masterRouter = express.Router();
     app.use('/infinitiStorage', masterRouter);
 
-    masterRouter.get(
+    const staticRouter = express.Router();
+    staticRouter.use(compression());
+    staticRouter.get(
         /^\/(?!api).*/,
         express.static(path.join(__dirname, '../../frontend/build'), {
             fallthrough: true,
@@ -40,6 +43,7 @@ import { sequelize } from './database';
             });
         }
     );
+    masterRouter.use(staticRouter);
 
     socketio.on('connection', (socket) => {
         socket.on('disconnect', () => {
@@ -47,13 +51,6 @@ import { sequelize } from './database';
         });
 
         listen(socket);
-
-        // socket.on(
-        //     'cred/login',
-        //     ({ email, password }: { email: string; password: string }) => {
-        //         console.log(`Login {email: ${email}, password: ${password}}`);
-        //     }
-        // );
 
         console.log(`a user connec, id=${socket.id}`);
     });
