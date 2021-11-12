@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import * as auth from '../../lib/auth';
 import { useHistory } from 'react-router';
-import './style.scss';
 import {
     CenteredContainer,
     Container,
