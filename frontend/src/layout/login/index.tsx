@@ -3,16 +3,24 @@ import { Link } from 'react-router-dom';
 import * as auth from '../../lib/auth';
 import { useHistory } from 'react-router';
 import { Formik } from 'formik';
-import { CenteredContainer, Container, Title } from './container-components';
-import { LoginFormik } from './login-formik';
+import {
+    CenteredContainer,
+    Container,
+    Title,
+} from '../../components/form-containers';
+import { LoginFormik, LoginProps } from './login-formik';
 import { LoginAlert } from './login-alert';
 
 function Login() {
     const history = useHistory();
     const [error, setError] = useState('');
+    const initialValues = {
+        email: '',
+        password: '',
+    };
 
-    function login(email: string, password: string, setSubmitting: Function) {
-        auth.login(email, password)
+    function login(values: LoginProps, setSubmitting: Function) {
+        auth.login(values.email, values.password)
             .then(() => history.push('/'))
             .catch((error_) => {
                 setError(error_);
@@ -26,18 +34,16 @@ function Login() {
                 <Title>Login</Title>
                 <LoginAlert error={error} reset={() => setError('')} />
                 <Formik
-                    initialValues={{ email: '', password: '' }}
+                    initialValues={initialValues}
                     onSubmit={(values, actions) => {
-                        login(
-                            values.email,
-                            values.password,
-                            actions.setSubmitting
-                        );
+                        login(values, actions.setSubmitting);
                     }}
                 >
                     {LoginFormik}
                 </Formik>
-                <Link to="/register">Forgor? Register here.</Link>
+                <Link to="/register">
+                    Doesn't have an account yet? Register here.
+                </Link>
             </CenteredContainer>
         </Container>
     );

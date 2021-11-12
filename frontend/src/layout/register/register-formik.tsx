@@ -3,14 +3,17 @@ import { Field, Form, FormikProps } from 'formik';
 import { createField } from '../../formik/helpers';
 import { validateNotEmpty } from '../../formik/validators';
 
-export interface LoginProps {
+export interface RegisterProps {
     email: string;
     password: string;
+    confirmPassword: string;
+    firstName: string;
+    lastName: string;
 }
 
-type LoginFormikProps = FormikProps<LoginProps>;
+type RegisterFormikProps = FormikProps<RegisterProps>;
 
-export function LoginFormik(props: LoginFormikProps) {
+export function RegisterFormik(props: RegisterFormikProps) {
     return (
         <Form>
             <Field name="email" validate={validateNotEmpty}>
@@ -19,13 +22,22 @@ export function LoginFormik(props: LoginFormikProps) {
             <Field name="password" validate={validateNotEmpty}>
                 {createField('password', 'Password', 'password')}
             </Field>
+            <Field name="confirmPassword" validate={validateNotEmpty}>
+                {createField('confirmPassword', 'Confirm Password', 'password')}
+            </Field>
+            <Field name="firstName" validate={validateNotEmpty}>
+                {createField('firstName', 'First Name', 'text')}
+            </Field>
+            <Field name="lastName" validate={validateNotEmpty}>
+                {createField('lastName', 'Last Name', 'text')}
+            </Field>
             <Button
                 mt={4}
                 colorScheme="teal"
                 isLoading={props.isSubmitting}
                 type="submit"
             >
-                Login
+                Register
             </Button>
         </Form>
     );
