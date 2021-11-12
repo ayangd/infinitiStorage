@@ -14,15 +14,35 @@ export interface RegisterProps {
 type RegisterFormikProps = FormikProps<RegisterProps>;
 
 export function RegisterFormik(props: RegisterFormikProps) {
+    // Hacky password match validation
+    const [validatePassword, validateConfirmPassword] = (() => {
+        let password = '';
+        function validatePassword(value: string) {
+            password = value;
+            return validateNotEmpty(value);
+        }
+        function validateConfirmPassword(value: string) {
+            const validation = validateNotEmpty(value);
+            if (validation !== undefined) {
+                return validation;
+            }
+            console.log(password, value);
+            if (password !== value) {
+                return "Password didn't match.";
+            }
+        }
+        return [validatePassword, validateConfirmPassword];
+    })();
+
     return (
         <Form>
             <Field name="email" validate={validateNotEmpty}>
                 {createField('email', 'Email', 'email')}
             </Field>
-            <Field name="password" validate={validateNotEmpty}>
+            <Field name="password" validate={validatePassword}>
                 {createField('password', 'Password', 'password')}
             </Field>
-            <Field name="confirmPassword" validate={validateNotEmpty}>
+            <Field name="confirmPassword" validate={validateConfirmPassword}>
                 {createField('confirmPassword', 'Confirm Password', 'password')}
             </Field>
             <Field name="firstName" validate={validateNotEmpty}>
