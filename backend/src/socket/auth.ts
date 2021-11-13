@@ -24,16 +24,11 @@ export default function listenAuth(socket: WrappedSocket) {
         if (loginParameters === undefined) {
             throw 'Expected parameters';
         }
-        const loginParametersAssertion = assertion(loginParameters);
-        const assertionPassing =
-            loginParametersAssertion.shouldBeTyped('object') &&
-            assertion(loginParameters).shouldHaveProperties(
-                'email',
-                'password'
-            );
-        if (!assertionPassing) {
-            throw 'Bad Request';
-        }
+        assertion(loginParameters)
+            .shouldHaveProperties(['email', 'password'])
+            .ifNotPassing(() => {
+                throw 'Bad Request';
+            });
         const { email, password } = loginParameters;
         const resultModel = await User.findOne({
             where: { email: email },
@@ -57,12 +52,21 @@ export default function listenAuth(socket: WrappedSocket) {
     });
 
     socket.listen<UserCreationAttributes>('cred/register', async (newUser) => {
-        let user!: UserType;
         if (newUser === undefined) {
             throw 'Expected parameters';
         }
+        assertion(newUser)
+            .shouldHaveProperties([
+                'email',
+                'password',
+                'firstName',
+                'lastName',
+            ])
+            .ifNotPassing(() => {
+                throw 'Bad Request';
+            });
         const { password, ...newUser_ } = newUser;
-        user = await User.create({
+        const user = await User.create({
             password: await bcrypt.hash(password, 10),
             ...newUser_,
         });
