@@ -1,4 +1,3 @@
-import { Socket } from 'socket.io';
 import * as bcrypt from 'bcryptjs';
 import {
     User as UserType,
@@ -6,6 +5,8 @@ import {
 } from '../database/models/user';
 import { User } from '../database';
 import { assertion } from './assertion';
+import { WrappedSocket } from '.';
+import _ from 'lodash';
 
 interface LoginParameters {
     email: string;
@@ -14,14 +15,16 @@ interface LoginParameters {
 
 export const sessions: Record<string, number> = {};
 
-export default function listenAuth(socket: Socket) {
+export default function listenAuth(socket: WrappedSocket) {
     socket.on('disconnect', () => {
         delete sessions[socket.id];
     });
 
-    socket.on('cred/login', (loginParameters: LoginParameters) => {
+    socket.listen<LoginParameters>('cred/login', async (loginParameters) => {
+        if (loginParameters === undefined) {
+            throw 'Expected parameters';
+        }
         const loginParametersAssertion = assertion(loginParameters);
-        console.log(JSON.stringify(loginParameters));
         const assertionPassing =
             loginParametersAssertion.shouldBeTyped('object') &&
             assertion(loginParameters).shouldHaveProperties(
@@ -29,102 +32,53 @@ export default function listenAuth(socket: Socket) {
                 'password'
             );
         if (!assertionPassing) {
-            socket.emit('cred/login/response', {
-                success: false,
-                message: 'Bad Request',
-            });
-            return;
+            throw 'Bad Request';
         }
         const { email, password } = loginParameters;
-        (async () => {
-            const resultModel = await User.findOne({
-                where: { email: email },
-            });
-
-            if (resultModel === null) {
-                socket.emit('cred/login/response', {
-                    success: false,
-                    message: 'Email not registered',
-                });
-                return;
-            }
-            const result = resultModel.get();
-
-            const match = await bcrypt.compare(password, result.password);
-            if (!match) {
-                socket.emit('cred/login/response', {
-                    success: false,
-                    message: "Password didn't match",
-                });
-            }
-            sessions[socket.id] = result.id;
-            socket.emit('cred/login/response', {
-                success: true,
-            });
-        })();
-    });
-
-    socket.on('cred/logout', () => {
-        delete sessions[socket.id];
-        socket.emit('cred/logout/response', {
-            success: true,
+        const resultModel = await User.findOne({
+            where: { email: email },
         });
-    });
 
-    socket.on('cred/register', (newUser: UserCreationAttributes) => {
-        (async () => {
-            let user!: UserType;
-            try {
-                const { password, ...newUser_ } = newUser;
-                user = await User.create({
-                    password: await bcrypt.hash(password, 10),
-                    ...newUser_,
-                });
-            } catch (e) {
-                let message: any = undefined;
-                if (e instanceof Error) {
-                    message = e.message;
-                } else if (typeof e === 'string') {
-                    message = e;
-                }
-                socket.emit('cred/register/response', {
-                    success: false,
-                    message: message ?? 'Internal server error',
-                });
-                return;
-            }
-            sessions[socket.id] = user.id;
-            socket.emit('cred/register/response', { success: true });
-        })();
-    });
-
-    socket.on('cred/currentUser', () => {
-        if (sessions[socket.id] === undefined) {
-            socket.emit('cred/currentUser/response', {
-                success: false,
-                message: 'Not logged in',
-            });
-            return;
+        if (resultModel === null) {
+            throw 'Email not registered';
         }
-        User.findByPk(sessions[socket.id]).then((userModel) => {
-            if (userModel === null) {
-                socket.emit('cred/currentUser/response', {
-                    success: false,
-                    message: 'User not found',
-                });
-                return;
-            }
-            const user = userModel.get();
-            socket.emit('cred/currentUser/response', {
-                success: true,
-                data: {
-                    user: {
-                        email: user.email,
-                        firstName: user.firstName,
-                        lastName: user.lastName,
-                    },
-                },
-            });
+        const result = resultModel.get();
+
+        const match = await bcrypt.compare(password, result.password);
+        if (!match) {
+            throw "Password didn't match";
+        }
+        sessions[socket.id] = result.id;
+    });
+
+    socket.listen('cred/logout', async () => {
+        delete sessions[socket.id];
+        return;
+    });
+
+    socket.listen<UserCreationAttributes>('cred/register', async (newUser) => {
+        let user!: UserType;
+        if (newUser === undefined) {
+            throw 'Expected parameters';
+        }
+        const { password, ...newUser_ } = newUser;
+        user = await User.create({
+            password: await bcrypt.hash(password, 10),
+            ...newUser_,
         });
+        sessions[socket.id] = user.id;
+    });
+
+    socket.listen('cred/currentUser', async () => {
+        const session = sessions[socket.id];
+        if (session === undefined) {
+            throw 'Not logged in';
+        }
+        const userModel = await User.findByPk(session);
+        if (userModel === null) {
+            throw 'User not found';
+        }
+        const user = userModel.get();
+        return { user: _.pick(user, ['email', 'firstName', 'lastName']) };
     });
 }
