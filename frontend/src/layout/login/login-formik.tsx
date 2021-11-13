@@ -14,10 +14,10 @@ export function LoginFormik(props: LoginFormikProps) {
     return (
         <Form>
             <Field name="email" validate={validateNotEmpty}>
-                {createField('email', 'Email', 'email')}
+                {createField<LoginProps>('email', 'Email', 'email')}
             </Field>
             <Field name="password" validate={validateNotEmpty}>
-                {createField('password', 'Password', 'password')}
+                {createField<LoginProps>('password', 'Password', 'password')}
             </Field>
             <Button
                 mt={4}

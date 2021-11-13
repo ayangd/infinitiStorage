@@ -37,19 +37,23 @@ export function RegisterFormik(props: RegisterFormikProps) {
     return (
         <Form>
             <Field name="email" validate={validateNotEmpty}>
-                {createField('email', 'Email', 'email')}
+                {createField<RegisterProps>('email', 'Email', 'email')}
             </Field>
             <Field name="password" validate={validatePassword}>
-                {createField('password', 'Password', 'password')}
+                {createField<RegisterProps>('password', 'Password', 'password')}
             </Field>
             <Field name="confirmPassword" validate={validateConfirmPassword}>
-                {createField('confirmPassword', 'Confirm Password', 'password')}
+                {createField<RegisterProps>(
+                    'confirmPassword',
+                    'Confirm Password',
+                    'password'
+                )}
             </Field>
             <Field name="firstName" validate={validateNotEmpty}>
-                {createField('firstName', 'First Name', 'text')}
+                {createField<RegisterProps>('firstName', 'First Name', 'text')}
             </Field>
             <Field name="lastName" validate={validateNotEmpty}>
-                {createField('lastName', 'Last Name', 'text')}
+                {createField<RegisterProps>('lastName', 'Last Name', 'text')}
             </Field>
             <Button
                 mt={4}
